@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  absoluteAssetUrl,
   buildDesignMd,
   collectBrandIcons,
   extractBrandPalette,
@@ -88,6 +89,24 @@ describe("brand icons", () => {
     ]);
     expect(primaryFavicon(icons)).toBe("/favicon.ico");
     expect(filenameFromHref(primaryFavicon(icons), "favicon.ico")).toBe("favicon.ico");
+  });
+});
+
+describe("absoluteAssetUrl", () => {
+  it("keeps absolute asset urls unchanged", () => {
+    expect(absoluteAssetUrl("https://example.com/logo.png")).toBe("https://example.com/logo.png");
+  });
+
+  it("does not throw when location.href is a path-only router href", () => {
+    expect(() => absoluteAssetUrl("/logo.png", "/")).not.toThrow();
+    expect(() => absoluteAssetUrl("/logo.png", "/brand")).not.toThrow();
+    expect(absoluteAssetUrl("/logo.png", "/")).toBe("/logo.png");
+  });
+
+  it("resolves against an absolute location href", () => {
+    expect(absoluteAssetUrl("/logo.png", "https://nearbuilders.org/brand")).toBe(
+      "https://nearbuilders.org/logo.png",
+    );
   });
 });
 

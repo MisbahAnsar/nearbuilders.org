@@ -115,6 +115,32 @@ export function filenameFromHref(href: string, fallback: string): string {
   return name || fallback;
 }
 
+export function absoluteAssetUrl(path: string, locationHref?: string): string {
+  if (!path) return path;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path)) return path;
+
+  const bases: string[] = [];
+  if (typeof window !== "undefined" && window.location?.origin) {
+    const origin = window.location.origin;
+    bases.push(locationHref ? new URL(locationHref, origin).href : origin);
+  } else if (locationHref && /^[a-z][a-z0-9+.-]*:/i.test(locationHref)) {
+    bases.push(locationHref);
+  }
+  if (typeof document !== "undefined" && document.baseURI) {
+    bases.push(document.baseURI);
+  }
+
+  for (const base of bases) {
+    try {
+      return new URL(path, base).href;
+    } catch {
+      continue;
+    }
+  }
+
+  return path;
+}
+
 export function iconLabel(href: string, rel: string): string {
   if (rel.includes("apple")) return "Apple touch icon";
   const file = filenameFromHref(href, "icon");

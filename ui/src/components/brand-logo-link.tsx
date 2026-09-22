@@ -4,6 +4,7 @@ import { type MouseEvent, useEffect, useLayoutEffect, useRef, useState } from "r
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import {
+  absoluteAssetUrl,
   BRAND_LOGO_SRC,
   collectBrandIcons,
   copyLogoImage,
@@ -32,11 +33,6 @@ export function BrandLogoLink({
   const triggerRef = useRef<HTMLAnchorElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState<MenuPoint | null>(null);
-
-  const logoHref =
-    triggerRef.current?.querySelector("img")?.currentSrc ||
-    triggerRef.current?.querySelector("img")?.src ||
-    new URL(BRAND_LOGO_SRC, location.href).href;
 
   useLayoutEffect(() => {
     const node = menuRef.current;
@@ -75,6 +71,11 @@ export function BrandLogoLink({
       y: event.clientY || rect.bottom,
     });
   };
+
+  const logoHref =
+    triggerRef.current?.querySelector("img")?.currentSrc ||
+    triggerRef.current?.querySelector("img")?.src ||
+    absoluteAssetUrl(BRAND_LOGO_SRC, location.href);
 
   const close = () => setMenu(null);
 

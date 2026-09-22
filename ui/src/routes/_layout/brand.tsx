@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
+  absoluteAssetUrl,
   BRAND_LOGO_SRC,
   type BrandColor,
   type BrandIcon,
@@ -52,7 +53,7 @@ function BrandPage() {
       .writeText(
         buildDesignMd(palette, {
           name: "Near Builders",
-          logoHref: new URL(BRAND_LOGO_SRC, location.href).href,
+          logoHref: absoluteAssetUrl(BRAND_LOGO_SRC, location.href),
           description: "Brand tokens for nearbuilders.org",
         }),
       )
