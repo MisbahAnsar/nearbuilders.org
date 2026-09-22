@@ -17,6 +17,7 @@ import { Route as LayoutLoginRouteImport } from './routes/_layout/login'
 import { Route as LayoutJoinRouteImport } from './routes/_layout/join'
 import { Route as LayoutIronclawRouteImport } from './routes/_layout/ironclaw'
 import { Route as LayoutEventsRouteImport } from './routes/_layout/events'
+import { Route as LayoutBrandRouteImport } from './routes/_layout/brand'
 import { Route as LayoutAboutRouteImport } from './routes/_layout/about'
 import { Route as LayoutAuthenticatedRouteImport } from './routes/_layout/_authenticated'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/_admin'
@@ -105,6 +106,11 @@ const LayoutIronclawRoute = LayoutIronclawRouteImport.update({
 const LayoutEventsRoute = LayoutEventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutBrandRoute = LayoutBrandRouteImport.update({
+  id: '/brand',
+  path: '/brand',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutAboutRoute = LayoutAboutRouteImport.update({
@@ -389,6 +395,7 @@ const LayoutAdminAdminDashboardActivityRoute =
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
   '/about': typeof LayoutAboutRoute
+  '/brand': typeof LayoutBrandRoute
   '/events': typeof LayoutEventsRouteWithChildren
   '/ironclaw': typeof LayoutIronclawRoute
   '/join': typeof LayoutJoinRoute
@@ -445,6 +452,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
   '/about': typeof LayoutAboutRoute
+  '/brand': typeof LayoutBrandRoute
   '/ironclaw': typeof LayoutIronclawRoute
   '/join': typeof LayoutJoinRoute
   '/login': typeof LayoutLoginRoute
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/_layout/_admin': typeof LayoutAdminRouteWithChildren
   '/_layout/_authenticated': typeof LayoutAuthenticatedRouteWithChildren
   '/_layout/about': typeof LayoutAboutRoute
+  '/_layout/brand': typeof LayoutBrandRoute
   '/_layout/events': typeof LayoutEventsRouteWithChildren
   '/_layout/ironclaw': typeof LayoutIronclawRoute
   '/_layout/join': typeof LayoutJoinRoute
@@ -559,6 +568,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/brand'
     | '/events'
     | '/ironclaw'
     | '/join'
@@ -615,6 +625,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/brand'
     | '/ironclaw'
     | '/join'
     | '/login'
@@ -668,6 +679,7 @@ export interface FileRouteTypes {
     | '/_layout/_admin'
     | '/_layout/_authenticated'
     | '/_layout/about'
+    | '/_layout/brand'
     | '/_layout/events'
     | '/_layout/ironclaw'
     | '/_layout/join'
@@ -784,6 +796,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof LayoutEventsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/brand': {
+      id: '/_layout/brand'
+      path: '/brand'
+      fullPath: '/brand'
+      preLoaderRoute: typeof LayoutBrandRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/about': {
@@ -1326,6 +1345,7 @@ interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRouteWithChildren
   LayoutAuthenticatedRoute: typeof LayoutAuthenticatedRouteWithChildren
   LayoutAboutRoute: typeof LayoutAboutRoute
+  LayoutBrandRoute: typeof LayoutBrandRoute
   LayoutEventsRoute: typeof LayoutEventsRouteWithChildren
   LayoutIronclawRoute: typeof LayoutIronclawRoute
   LayoutJoinRoute: typeof LayoutJoinRoute
@@ -1348,6 +1368,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRouteWithChildren,
   LayoutAuthenticatedRoute: LayoutAuthenticatedRouteWithChildren,
   LayoutAboutRoute: LayoutAboutRoute,
+  LayoutBrandRoute: LayoutBrandRoute,
   LayoutEventsRoute: LayoutEventsRouteWithChildren,
   LayoutIronclawRoute: LayoutIronclawRoute,
   LayoutJoinRoute: LayoutJoinRoute,

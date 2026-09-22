@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { sessionQueryOptions, useAuthClient } from "@/app";
 import builtOn from "@/assets/built_on.png";
 import builtOnRev from "@/assets/built_on_rev.png";
+import { BrandLogoLink } from "@/components/brand-logo-link";
 import { GlobalSearch } from "@/components/global-search";
 import { NotificationBell } from "@/components/notification-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -88,13 +89,12 @@ function Layout() {
       <header className="sticky top-0 z-40 w-full border-b border-border bg-background text-foreground backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
-            <Link
-              to="/"
+            <BrandLogoLink
+              appName={appName}
               className="flex min-w-0 items-center gap-2 text-base font-black tracking-tight text-foreground transition-opacity hover:opacity-75 sm:gap-2.5 sm:text-lg"
-            >
-              <img src="/logo.png" alt={appName} className="h-8 w-auto shrink-0 sm:h-9" />
-              <span className="truncate">{appName}</span>
-            </Link>
+              imageClassName="h-8 w-auto shrink-0 sm:h-9"
+              nameClassName="truncate"
+            />
 
             <button
               type="button"
@@ -217,13 +217,11 @@ function Layout() {
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-20">
             <div>
-              <Link
-                to="/"
+              <BrandLogoLink
+                appName={appName}
                 className="inline-flex items-center gap-3 text-lg font-black tracking-tight text-foreground transition-opacity hover:opacity-75"
-              >
-                <img src="/logo.png" alt={appName} className="h-12 w-auto" />
-                {appName}
-              </Link>
+                imageClassName="h-12 w-auto"
+              />
               <h2 className="mt-8 max-w-xl text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl">
                 The open network for people building what's next.
               </h2>
@@ -286,6 +284,12 @@ function Layout() {
                       {link.label}
                     </a>
                   ))}
+                  <Link
+                    to="/brand"
+                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Brand
+                  </Link>
                 </nav>
               </div>
             </div>
