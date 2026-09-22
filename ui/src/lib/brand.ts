@@ -188,6 +188,164 @@ export async function copyLogoImage(href: string) {
   await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
 }
 
+export function tokenNameForProperty(property: string): string {
+  return property.replace(/^--(?:brand-)?/, "");
+}
+
+export function buildDesignMd(
+  palette: BrandPalette,
+  options: { name?: string; logoHref?: string; description?: string } = {},
+): string {
+  const name = options.name ?? "Near Builders";
+  const description =
+    options.description ?? "Brand tokens for the Near Builders product surface.";
+  const logoHref = options.logoHref ?? BRAND_LOGO_SRC;
+  const colorEntries = designColorEntries(palette);
+  const primary =
+    colorEntries.find((entry) => entry.token === "accent") ??
+    colorEntries.find((entry) => entry.token === "primary") ??
+    colorEntries[0];
+  const fontFamily = primaryFontFamily(palette.fontFamily) ?? "Inter";
+  const fontWeight = Number.parseInt(palette.fontWeight ?? "500", 10) || 500;
+
+  const yamlColors = [
+    primary ? `  primary: "${primary.light}"` : null,
+    ...colorEntries
+      .filter((entry) => entry.token !== "primary")
+      .flatMap((entry) => {
+        const lines = [`  ${entry.token}: "${entry.light}"`];
+        if (entry.dark && entry.dark !== entry.light) {
+          lines.push(`  ${entry.token}-dark: "${entry.dark}"`);
+        }
+        return lines;
+      }),
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const colorBullets = colorEntries
+    .map((entry) => {
+      const darkNote =
+        entry.dark && entry.dark !== entry.light ? ` · dark ${entry.dark}` : "";
+      return `- **${entry.label} (\`${entry.light}\`):** CSS \`${entry.property}\`${darkNote}.`;
+    })
+    .join("\n");
+
+  return `---
+version: alpha
+name: ${yamlString(name)}
+description: ${yamlString(description)}
+colors:
+${yamlColors}
+typography:
+  body-md:
+    fontFamily: ${yamlString(fontFamily)}
+    fontSize: 1rem
+    fontWeight: ${fontWeight}
+    lineHeight: 1.5
+  headline:
+    fontFamily: ${yamlString(fontFamily)}
+    fontSize: 2.25rem
+    fontWeight: 900
+    lineHeight: 1.1
+  label-caps:
+    fontFamily: ${yamlString(fontFamily)}
+    fontSize: 0.75rem
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: 0.1em
+rounded:
+  md: 0.75rem
+  lg: 1rem
+  full: 9999px
+spacing:
+  xs: 4px
+  sm: 8px
+  md: 16px
+  lg: 24px
+  xl: 32px
+omitted:
+  - section: components
+    reason: "Brand page exports identity tokens; compose components from product UI patterns."
+---
+
+## Overview
+
+${name} is a builder-community product surface: clean, technical, and mint-accented.
+Use Inter for UI type, keep surfaces quiet, and reserve the mint accent for primary
+actions, focus rings, and brand emphasis. Logo asset: \`${logoHref}\`.
+
+## Colors
+
+Light theme values are normative. Dark-theme overrides are listed as \`-dark\` tokens
+when they differ.
+
+${colorBullets}
+
+## Typography
+
+- **Family:** ${fontFamily}
+- **Default weight:** ${fontWeight}
+- **Headlines:** Inter Black for page titles and brand moments
+- **Labels:** uppercase tracking-widest section labels in the mint accent
+
+## Layout
+
+Prefer a centered content column (\`max-w-7xl\`) with comfortable page padding.
+Use the spacing scale above; group related blocks with card surfaces and border
+separators rather than heavy chrome.
+
+## Elevation & Depth
+
+Depth comes from tonal layers and hairline borders, not dramatic shadows. Cards
+sit on \`{colors.card}\` against \`{colors.background}\` with \`{colors.border}\`.
+
+## Shapes
+
+Corners are soft but restrained. Default control and card radius is \`{rounded.md}\`
+(\`0.75rem\`). Pills and avatars may use \`{rounded.full}\`.
+
+## Do's and Don'ts
+
+- Do keep the mint accent sparse — one primary action per view when possible
+- Don't invent new brand hues outside the exported tokens
+- Do use semantic surface tokens (\`background\`, \`card\`, \`border\`) instead of raw grays
+- Don't place low-contrast text on mint or cobalt fills
+- Do ship Inter (or the documented fallback stack) rather than swapping display fonts
+`;
+}
+
+function designColorEntries(palette: BrandPalette) {
+  return palette.colors.flatMap((color) => {
+    const light = color.light ?? color.dark;
+    if (!light) return [];
+    const token = tokenNameForProperty(color.property);
+    return [
+      {
+        property: color.property,
+        token,
+        label: color.label,
+        light,
+        dark: color.dark,
+      },
+    ];
+  });
+}
+
+function primaryFontFamily(fontFamily: string | null): string | null {
+  if (!fontFamily) return null;
+  const first = fontFamily.split(",")[0]?.trim().replace(/^["']|["']$/g, "");
+  return first || null;
+}
+
+function yamlString(value: string): string {
+  if (/[:#{}[\],&*?|>!%@`]/.test(value) || value.includes('"') || value.includes("'")) {
+    return JSON.stringify(value);
+  }
+  if (value.includes(" ") || value === "") return JSON.stringify(value);
+  return value;
+}
+
 function shouldSkipAtRule(prelude: string) {
   return (
     prelude.startsWith("@theme") ||
