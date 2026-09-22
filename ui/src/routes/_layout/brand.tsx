@@ -1,12 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Download } from "lucide-react";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { Copy, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
+  absoluteAssetUrl,
   BRAND_LOGO_SRC,
   type BrandColor,
   type BrandIcon,
+  buildDesignMd,
   collectBrandIcons,
   downloadAsset,
   extractBrandPalette,
@@ -30,6 +32,7 @@ export const Route = createFileRoute("/_layout/brand")({
 });
 
 function BrandPage() {
+  const location = useLocation();
   const [icons, setIcons] = useState<BrandIcon[] | null>(null);
 
   useEffect(() => {
@@ -45,6 +48,21 @@ function BrandPage() {
   const brandColors = palette.colors.filter((color) => color.property.startsWith("--brand-"));
   const surfaceColors = palette.colors.filter((color) => !color.property.startsWith("--brand-"));
 
+  const copyDesignMd = () => {
+    void navigator.clipboard
+      .writeText(
+        buildDesignMd(palette, {
+          name: "Near Builders",
+          logoHref: absoluteAssetUrl(BRAND_LOGO_SRC, location.href),
+          description: "Brand tokens for nearbuilders.org",
+        }),
+      )
+      .then(
+        () => toast.success("Copied DESIGN.md"),
+        () => toast.error("Could not copy DESIGN.md"),
+      );
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <header className="max-w-2xl">
@@ -55,8 +73,12 @@ function BrandPage() {
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
           Logo, icons, colors, and type used on this site. Colors and the font come from the
           stylesheet. Icons come from the document head. Right-click the logo in the header or
-          footer to open, copy, or download it.
+          footer to open, copy, or download it. Copy a Stitch-format DESIGN.md for AI agents.
         </p>
+        <Button type="button" variant="outline" size="sm" className="mt-5" onClick={copyDesignMd}>
+          <Copy />
+          Copy to DESIGN.md
+        </Button>
       </header>
 
       <section className="mt-12">

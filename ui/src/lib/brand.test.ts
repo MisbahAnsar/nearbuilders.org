@@ -2,7 +2,15 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { collectBrandIcons, extractBrandPalette, filenameFromHref, primaryFavicon } from "./brand";
+import {
+  absoluteAssetUrl,
+  buildDesignMd,
+  collectBrandIcons,
+  extractBrandPalette,
+  filenameFromHref,
+  primaryFavicon,
+  tokenNameForProperty,
+} from "./brand";
 
 const stylesheet = readFileSync(
   resolve(dirname(fileURLToPath(import.meta.url)), "../styles.css"),
@@ -81,5 +89,52 @@ describe("brand icons", () => {
     ]);
     expect(primaryFavicon(icons)).toBe("/favicon.ico");
     expect(filenameFromHref(primaryFavicon(icons), "favicon.ico")).toBe("favicon.ico");
+  });
+});
+
+describe("absoluteAssetUrl", () => {
+  it("keeps absolute asset urls unchanged", () => {
+    expect(absoluteAssetUrl("https://example.com/logo.png")).toBe("https://example.com/logo.png");
+  });
+
+  it("does not throw when location.href is a path-only router href", () => {
+    expect(() => absoluteAssetUrl("/logo.png", "/")).not.toThrow();
+    expect(() => absoluteAssetUrl("/logo.png", "/brand")).not.toThrow();
+    expect(absoluteAssetUrl("/logo.png", "/")).toBe("/logo.png");
+  });
+
+  it("resolves against an absolute location href", () => {
+    expect(absoluteAssetUrl("/logo.png", "https://nearbuilders.org/brand")).toBe(
+      "https://nearbuilders.org/logo.png",
+    );
+  });
+});
+
+describe("buildDesignMd", () => {
+  it("maps CSS properties to DESIGN.md token names", () => {
+    expect(tokenNameForProperty("--brand-accent")).toBe("accent");
+    expect(tokenNameForProperty("--background")).toBe("background");
+  });
+
+  it("emits Stitch-format YAML front matter and brand sections", () => {
+    const palette = extractBrandPalette(stylesheet);
+    const markdown = buildDesignMd(palette, {
+      name: "Near Builders",
+      logoHref: "https://example.com/logo.png",
+      description: "Brand tokens for nearbuilders.org",
+    });
+
+    expect(markdown.startsWith("---\n")).toBe(true);
+    expect(markdown).toContain('name: "Near Builders"');
+    expect(markdown).toContain('primary: "#00d9a3"');
+    expect(markdown).toContain('accent: "#00d9a3"');
+    expect(markdown).toContain("fontFamily: Inter");
+    expect(markdown).toContain("fontWeight: 500");
+    expect(markdown).toContain("## Overview");
+    expect(markdown).toContain("## Colors");
+    expect(markdown).toContain("## Typography");
+    expect(markdown).toContain("## Do's and Don'ts");
+    expect(markdown).toContain("https://example.com/logo.png");
+    expect(markdown).toContain('cobalt-dark: "#4da6f5"');
   });
 });
