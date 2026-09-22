@@ -77,9 +77,8 @@ export function BrandLogoLink({
 
   const close = () => setMenu(null);
 
-  const openLink = () => {
-    const href = triggerRef.current?.href;
-    if (href) window.open(href, "_blank", "noopener,noreferrer");
+  const openBrand = () => {
+    window.open(new URL("/brand", window.location.origin).href, "_blank", "noopener,noreferrer");
     close();
   };
 
@@ -127,9 +126,9 @@ export function BrandLogoLink({
             className="fixed z-50 w-64 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-md"
             onContextMenu={(event) => event.preventDefault()}
           >
-            <button type="button" role="menuitem" className={menuItemClass} onClick={openLink}>
+            <button type="button" role="menuitem" className={menuItemClass} onClick={openBrand}>
               <ExternalLink />
-              Open link in new tab
+              Open brand in new tab
             </button>
             <button type="button" role="menuitem" className={menuItemClass} onClick={openLogo}>
               <Image />
