@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { Copy, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ export const Route = createFileRoute("/_layout/brand")({
 });
 
 function BrandPage() {
+  const location = useLocation();
   const [icons, setIcons] = useState<BrandIcon[] | null>(null);
 
   useEffect(() => {
@@ -47,20 +48,18 @@ function BrandPage() {
   const surfaceColors = palette.colors.filter((color) => !color.property.startsWith("--brand-"));
 
   const copyDesignMd = () => {
-    const logoHref =
-      typeof window === "undefined"
-        ? BRAND_LOGO_SRC
-        : new URL(BRAND_LOGO_SRC, window.location.origin).href;
-    void navigator.clipboard.writeText(
-      buildDesignMd(palette, {
-        name: "Near Builders",
-        logoHref,
-        description: "Brand tokens for nearbuilders.org",
-      }),
-    ).then(
-      () => toast.success("Copied DESIGN.md"),
-      () => toast.error("Could not copy DESIGN.md"),
-    );
+    void navigator.clipboard
+      .writeText(
+        buildDesignMd(palette, {
+          name: "Near Builders",
+          logoHref: new URL(BRAND_LOGO_SRC, location.href).href,
+          description: "Brand tokens for nearbuilders.org",
+        }),
+      )
+      .then(
+        () => toast.success("Copied DESIGN.md"),
+        () => toast.error("Could not copy DESIGN.md"),
+      );
   };
 
   return (

@@ -197,8 +197,7 @@ export function buildDesignMd(
   options: { name?: string; logoHref?: string; description?: string } = {},
 ): string {
   const name = options.name ?? "Near Builders";
-  const description =
-    options.description ?? "Brand tokens for the Near Builders product surface.";
+  const description = options.description ?? "Brand tokens for the Near Builders product surface.";
   const logoHref = options.logoHref ?? BRAND_LOGO_SRC;
   const colorEntries = designColorEntries(palette);
   const primary =
@@ -225,8 +224,7 @@ export function buildDesignMd(
 
   const colorBullets = colorEntries
     .map((entry) => {
-      const darkNote =
-        entry.dark && entry.dark !== entry.light ? ` · dark ${entry.dark}` : "";
+      const darkNote = entry.dark && entry.dark !== entry.light ? ` · dark ${entry.dark}` : "";
       return `- **${entry.label} (\`${entry.light}\`):** CSS \`${entry.property}\`${darkNote}.`;
     })
     .join("\n");
@@ -334,7 +332,10 @@ function designColorEntries(palette: BrandPalette) {
 
 function primaryFontFamily(fontFamily: string | null): string | null {
   if (!fontFamily) return null;
-  const first = fontFamily.split(",")[0]?.trim().replace(/^["']|["']$/g, "");
+  const first = fontFamily
+    .split(",")[0]
+    ?.trim()
+    .replace(/^["']|["']$/g, "");
   return first || null;
 }
 

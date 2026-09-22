@@ -52,8 +52,23 @@ export const validateOptionalMaxLength = (
   return undefined;
 };
 
+export const FIELD_LABELS: Record<keyof ProjectFormValues, string> = {
+  kind: "Kind",
+  title: "Title",
+  description: "Description",
+  repository: "Repository URL",
+  content: "Content",
+  visibility: "Visibility",
+  status: "Status",
+  ownerId: "Owner",
+  domain: "Domain",
+};
+
 export type ProjectFormValidation = {
   errors: Partial<Record<keyof ProjectFormValues, string>>;
+  missingFieldKeys: (keyof ProjectFormValues)[];
+  missingFields: string[];
+  invalidFields: string[];
   missingCount: number;
   invalidFieldCount: number;
   isValid: boolean;
@@ -79,16 +94,44 @@ export function getProjectFormValidation(
   setError("domain", validateOptionalMaxLength(values.domain, 255, "Max 255 characters"));
   setError("ownerId", validateOptionalMaxLength(values.ownerId, 255, "Max 255 characters"));
 
-  const missingCount = [
-    !values.title?.trim(),
-    kind === "project" ? !values.repository?.trim() : !values.content?.trim(),
-  ].filter(Boolean).length;
-  const invalidFieldCount = Object.keys(errors).length;
+  const missingFieldKeys = [
+    !values.title?.trim() && "title",
+    (kind === "project" ? !values.repository?.trim() : !values.content?.trim()) &&
+      (kind === "project" ? "repository" : "content"),
+  ].filter(Boolean) as (keyof ProjectFormValues)[];
+
+  return buildValidation(errors, missingFieldKeys);
+}
+
+export function filterProjectFormValidation(
+  validation: ProjectFormValidation,
+  isVisible: (field: keyof ProjectFormValues) => boolean,
+): ProjectFormValidation {
+  const errors = Object.fromEntries(
+    Object.entries(validation.errors).filter(([field]) =>
+      isVisible(field as keyof ProjectFormValues),
+    ),
+  ) as ProjectFormValidation["errors"];
+  const missingFieldKeys = validation.missingFieldKeys.filter(isVisible);
+  return buildValidation(errors, missingFieldKeys);
+}
+
+function buildValidation(
+  errors: ProjectFormValidation["errors"],
+  missingFieldKeys: (keyof ProjectFormValues)[],
+): ProjectFormValidation {
+  const missingFields = missingFieldKeys.map((field) => FIELD_LABELS[field]);
+  const invalidFields = (Object.keys(errors) as (keyof ProjectFormValues)[]).map(
+    (field) => FIELD_LABELS[field],
+  );
 
   return {
     errors,
-    missingCount,
-    invalidFieldCount,
-    isValid: invalidFieldCount === 0,
+    missingFieldKeys,
+    missingFields,
+    invalidFields,
+    missingCount: missingFields.length,
+    invalidFieldCount: invalidFields.length,
+    isValid: invalidFields.length === 0,
   };
 }

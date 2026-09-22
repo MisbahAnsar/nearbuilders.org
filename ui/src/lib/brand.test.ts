@@ -2,7 +2,14 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { collectBrandIcons, extractBrandPalette, filenameFromHref, primaryFavicon, buildDesignMd, tokenNameForProperty } from "./brand";
+import {
+  buildDesignMd,
+  collectBrandIcons,
+  extractBrandPalette,
+  filenameFromHref,
+  primaryFavicon,
+  tokenNameForProperty,
+} from "./brand";
 
 const stylesheet = readFileSync(
   resolve(dirname(fileURLToPath(import.meta.url)), "../styles.css"),

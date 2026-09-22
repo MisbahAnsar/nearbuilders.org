@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Copy, Download, ExternalLink, Image } from "lucide-react";
 import { type MouseEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -28,9 +28,15 @@ export function BrandLogoLink({
   imageClassName: string;
   nameClassName?: string;
 }) {
+  const location = useLocation();
   const triggerRef = useRef<HTMLAnchorElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState<MenuPoint | null>(null);
+
+  const logoHref =
+    triggerRef.current?.querySelector("img")?.currentSrc ||
+    triggerRef.current?.querySelector("img")?.src ||
+    new URL(BRAND_LOGO_SRC, location.href).href;
 
   useLayoutEffect(() => {
     const node = menuRef.current;
@@ -70,25 +76,10 @@ export function BrandLogoLink({
     });
   };
 
-  const logoSrc = () =>
-    triggerRef.current?.querySelector("img")?.currentSrc ||
-    triggerRef.current?.querySelector("img")?.src ||
-    BRAND_LOGO_SRC;
-
   const close = () => setMenu(null);
 
-  const openBrand = () => {
-    window.open(new URL("/brand", window.location.origin).href, "_blank", "noopener,noreferrer");
-    close();
-  };
-
-  const openLogo = () => {
-    window.open(logoSrc(), "_blank", "noopener,noreferrer");
-    close();
-  };
-
   const copyLogo = () => {
-    void copyLogoImage(logoSrc()).then(
+    void copyLogoImage(logoHref).then(
       () => toast.success("Logo copied"),
       () => toast.error("Could not copy logo"),
     );
@@ -96,8 +87,7 @@ export function BrandLogoLink({
   };
 
   const downloadLogo = () => {
-    const src = logoSrc();
-    downloadAsset(src, filenameFromHref(src, "logo.png"));
+    downloadAsset(logoHref, filenameFromHref(logoHref, "logo.png"));
     close();
   };
 
@@ -126,14 +116,28 @@ export function BrandLogoLink({
             className="fixed z-50 w-64 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-md"
             onContextMenu={(event) => event.preventDefault()}
           >
-            <button type="button" role="menuitem" className={menuItemClass} onClick={openBrand}>
+            <Link
+              to="/brand"
+              target="_blank"
+              rel="noopener noreferrer"
+              role="menuitem"
+              className={menuItemClass}
+              onClick={close}
+            >
               <ExternalLink />
               Open brand in new tab
-            </button>
-            <button type="button" role="menuitem" className={menuItemClass} onClick={openLogo}>
+            </Link>
+            <a
+              href={logoHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              role="menuitem"
+              className={menuItemClass}
+              onClick={close}
+            >
               <Image />
               Open logo in new tab
-            </button>
+            </a>
             <button type="button" role="menuitem" className={menuItemClass} onClick={copyLogo}>
               <Copy />
               Copy logo
