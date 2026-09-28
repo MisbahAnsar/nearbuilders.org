@@ -431,8 +431,7 @@ export default createPlugin.withPlugins<PluginsClient>()({
         return await services.plugins
           .proposals({
             ...context,
-            allowPrivateSubmission:
-              input.pluginId === "projects" || input.pluginId === "events",
+            allowPrivateSubmission: input.pluginId === "projects" || input.pluginId === "events",
           })
           .propose(input);
       }),
