@@ -428,7 +428,13 @@ export default createPlugin.withPlugins<PluginsClient>()({
           );
           return { data: result.proposal };
         }
-        return await services.plugins.proposals(context).propose(input);
+        return await services.plugins
+          .proposals({
+            ...context,
+            allowPrivateSubmission:
+              input.pluginId === "projects" || input.pluginId === "events",
+          })
+          .propose(input);
       }),
 
       approve: builder.approve.use(requireAdmin).handler(async ({ input, context }) => {
