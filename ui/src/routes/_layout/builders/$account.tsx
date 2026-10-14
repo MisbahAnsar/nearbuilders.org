@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClientOnly, createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import type { Profile } from "better-near-auth";
 import { getSocialImageMeta } from "everything-dev/ui/metadata";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -21,12 +20,18 @@ import { ActivityFeed } from "@/components/activity-feed";
 import { BuilderProfileStats } from "@/components/builder-profile-stats";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ContributedProjects } from "@/components/contributed-projects";
+import { LegacySocialImportPrompt } from "@/components/legacy-social-import-prompt";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { socialIcon } from "@/components/ui/social-icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  getNearSocialAvatarUrl,
+  getNearSocialBannerUrl,
+  type ResolvedNearProfile,
+} from "@/lib/near-social";
 import { activityFeedQueryOptions } from "@/lib/queries/activity";
 import type { ProposalPayload } from "@/lib/queries/builders";
 import {
@@ -139,7 +144,7 @@ function BuilderProfilePage() {
     builderDetailOptions(apiClient, account),
   );
 
-  const { data: profile, isLoading: profileLoading } = useQuery<Profile | null>(
+  const { data: profile, isLoading: profileLoading } = useQuery(
     nearProfileOptions(auth, account),
   );
 
@@ -283,7 +288,7 @@ function LoadedProfile({
 }: {
   account: string;
   builder: BuilderData;
-  profile: Profile | null | undefined;
+  profile: ResolvedNearProfile | null | undefined;
   profileLoading: boolean;
   isOwner: boolean;
   activeProposal: { id: string; submissionCount: number } | null;
@@ -328,16 +333,8 @@ function LoadedProfile({
   const displayName = builder.name || profile?.name || account;
   const bio = builder.bio || profile?.description || null;
 
-  const avatarUrl =
-    profile?.image?.url ??
-    (profile?.image?.ipfs_cid ? `https://ipfs.near.social/ipfs/${profile.image.ipfs_cid}` : null);
-
-  const backgroundUrl =
-    profile?.backgroundImage?.url ??
-    (profile?.backgroundImage?.ipfs_cid
-      ? `https://ipfs.near.social/ipfs/${profile.backgroundImage.ipfs_cid}`
-      : null);
-
+  const avatarUrl = getNearSocialAvatarUrl(profile);
+  const backgroundUrl = getNearSocialBannerUrl(profile);
   const allLinks = mergeSocialLinks(profile?.linktree, builder.links);
 
   return (
@@ -368,6 +365,8 @@ function LoadedProfile({
           </p>
         </div>
       )}
+
+      {isOwner && <LegacySocialImportPrompt profile={profile} className="mb-6" />}
 
       <div className="mb-8 overflow-hidden rounded-2xl border border-border bg-card">
         <div className="relative h-32 sm:h-40">
@@ -760,7 +759,7 @@ function NominatedFallback({
   counts,
 }: {
   account: string;
-  profile: Profile | null | undefined;
+  profile: ResolvedNearProfile | null | undefined;
   profileLoading: boolean;
   canWithdraw: boolean;
   proposal: {
@@ -813,18 +812,11 @@ function NominatedFallback({
     typeof raw === "object" && raw !== null ? (raw as ProposalPayload) : {};
 
   const displayName = payload.name || profile?.name || account;
-  const avatarUrl =
-    profile?.image?.url ??
-    (profile?.image?.ipfs_cid ? `https://ipfs.near.social/ipfs/${profile.image.ipfs_cid}` : null);
+  const avatarUrl = getNearSocialAvatarUrl(profile);
   const bio = payload.bio || profile?.description || null;
   const skills: string[] = Array.isArray(payload.skills) ? payload.skills : [];
   const location = payload.location || null;
-
-  const backgroundUrl =
-    profile?.backgroundImage?.url ??
-    (profile?.backgroundImage?.ipfs_cid
-      ? `https://ipfs.near.social/ipfs/${profile.backgroundImage.ipfs_cid}`
-      : null);
+  const backgroundUrl = getNearSocialBannerUrl(profile);
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10">
