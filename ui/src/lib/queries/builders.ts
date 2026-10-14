@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { ApiClient, AuthClient } from "@/app";
-import { fetchResolvedNearProfile, type ResolvedNearProfile } from "@/lib/near-social";
+import { fetchResolvedNearProfile, type ResolvedNearProfile } from "../near-social/index";
 
 export const PAGE_SIZE = 24;
 
