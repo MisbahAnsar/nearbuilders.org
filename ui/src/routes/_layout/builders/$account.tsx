@@ -144,9 +144,7 @@ function BuilderProfilePage() {
     builderDetailOptions(apiClient, account),
   );
 
-  const { data: profile, isLoading: profileLoading } = useQuery(
-    nearProfileOptions(auth, account),
-  );
+  const { data: profile, isLoading: profileLoading } = useQuery(nearProfileOptions(auth, account));
 
   const nearAccountId = auth.near.getAccountId();
   const isOwner = Boolean(nearAccountId) && nearAccountId?.toLowerCase() === account.toLowerCase();

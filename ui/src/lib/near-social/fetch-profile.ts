@@ -1,14 +1,6 @@
 import { NEAR_SOCIAL_API2_BASE, NEAR_SOCIAL_LEGACY_API_BASE } from "./constants";
-import {
-  emptyNearProfile,
-  profileFromLegacyApi,
-  profileFromNewApi,
-} from "./normalize";
-import type {
-  NearSocialApiProfile,
-  NearSocialLegacyAccount,
-  ResolvedNearProfile,
-} from "./types";
+import { emptyNearProfile, profileFromLegacyApi, profileFromNewApi } from "./normalize";
+import type { NearSocialApiProfile, NearSocialLegacyAccount, ResolvedNearProfile } from "./types";
 
 async function fetchJson<T>(url: string, signal?: AbortSignal): Promise<T | null> {
   try {

@@ -97,9 +97,7 @@ export function emptyNearProfile(accountId: string): ResolvedNearProfile {
   };
 }
 
-export function needsLegacySocialImport(
-  profile: ResolvedNearProfile | null | undefined,
-): boolean {
+export function needsLegacySocialImport(profile: ResolvedNearProfile | null | undefined): boolean {
   return Boolean(profile?.hasLegacyProfile && !profile.hasNewProfile);
 }
 

@@ -38,14 +38,13 @@ export function LegacySocialImportPrompt({
         </div>
         <div className="min-w-0 flex-1 space-y-3">
           <div className="space-y-1">
-            <h2 className="text-sm font-semibold text-foreground">
-              Welcome back from near.social
-            </h2>
+            <h2 className="text-sm font-semibold text-foreground">Welcome back from near.social</h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
               We found your original near.social profile for{" "}
               <span className="font-medium text-foreground">{displayName}</span>
               {about ? ` — “${about.length > 120 ? `${about.slice(0, 117)}…` : about}”` : ""}.
-              Import it to the new near.social network so avatars, bios, and links stay correct here.
+              Import it to the new near.social network so avatars, bios, and links stay correct
+              here.
             </p>
           </div>
           <Button asChild size="sm" className="rounded-full">
