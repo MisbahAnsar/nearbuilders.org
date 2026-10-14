@@ -35,7 +35,7 @@ import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/comp
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { VoteButton } from "@/components/ui/vote-button";
 import { isSafeImageUrl } from "@/lib/image-url";
-import { getNearSocialAvatarUrl, isNearAccountId } from "@/lib/near-social";
+import { getNearSocialAvatarUrl, resolveProjectNearAccount } from "@/lib/near-social";
 import { nearProfileOptions } from "@/lib/queries/builders";
 import { formatRelativeTime } from "@/lib/queries/notifications";
 import {
@@ -150,10 +150,12 @@ function ProjectDetailPage() {
 
   const project = projectQuery.data?.data;
   const projectId = project?.id;
-  const projectSocialAccount = isNearAccountId(project?.ownerId) ? project!.ownerId : "";
-  const { data: projectSocialProfile } = useQuery(
-    nearProfileOptions(auth, projectSocialAccount),
-  );
+  const projectSocialAccount =
+    resolveProjectNearAccount({
+      ownerId: project?.ownerId,
+      apps: (project as { apps?: Array<{ accountId: string }> } | undefined)?.apps,
+    }) ?? "";
+  const { data: projectSocialProfile } = useQuery(nearProfileOptions(auth, projectSocialAccount));
   const canParticipate = Boolean(session?.user && !session.user.isAnonymous);
 
   const readmeQuery = useQuery({

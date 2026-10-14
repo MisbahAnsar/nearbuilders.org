@@ -20,6 +20,7 @@ export {
   hasNearSocialAvatar,
   resolveNearSocialImageUrl,
 } from "./profile-media";
+export { resolveProjectNearAccount } from "./project-account";
 export type {
   NearSocialApiProfile,
   NearSocialImage,

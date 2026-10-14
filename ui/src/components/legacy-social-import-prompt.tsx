@@ -1,6 +1,7 @@
 import { ArrowUpRight, Import } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  getNearSocialAvatarUrl,
   NEAR_SOCIAL_ONBOARDING_URL,
   needsLegacySocialImport,
   type ResolvedNearProfile,
@@ -16,6 +17,10 @@ export function LegacySocialImportPrompt({
 }) {
   if (!needsLegacySocialImport(profile)) return null;
 
+  const avatarUrl = getNearSocialAvatarUrl(profile);
+  const displayName = profile?.name?.trim() || profile?.accountId || "your account";
+  const about = profile?.description?.trim();
+
   return (
     <section
       className={cn(
@@ -24,21 +29,28 @@ export function LegacySocialImportPrompt({
       )}
     >
       <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-brand-accent-border bg-card">
-          <Import className="size-4 text-brand-accent" aria-hidden="true" />
+        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-brand-accent-border bg-card">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="size-full object-cover" />
+          ) : (
+            <Import className="size-4 text-brand-accent" aria-hidden="true" />
+          )}
         </div>
         <div className="min-w-0 flex-1 space-y-3">
           <div className="space-y-1">
-            <h2 className="text-sm font-semibold text-foreground">Import your near.social profile</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              Welcome back from near.social
+            </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              We found your original near.social profile
-              {profile?.name ? ` for ${profile.name}` : ""}, but it has not been migrated to the new
-              network yet. Import it so avatars, bios, and links stay correct across NearBuilders.
+              We found your original near.social profile for{" "}
+              <span className="font-medium text-foreground">{displayName}</span>
+              {about ? ` — “${about.length > 120 ? `${about.slice(0, 117)}…` : about}”` : ""}.
+              Import it to the new near.social network so avatars, bios, and links stay correct here.
             </p>
           </div>
           <Button asChild size="sm" className="rounded-full">
             <a href={NEAR_SOCIAL_ONBOARDING_URL} target="_blank" rel="noopener noreferrer">
-              Import on near.social
+              Import profile on near.social
               <ArrowUpRight className="size-3.5" />
             </a>
           </Button>
