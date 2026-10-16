@@ -367,7 +367,10 @@ function LoadedProfile({
       {isOwner && <LegacySocialImportPrompt profile={profile} className="mb-6" />}
 
       <div className="mb-8 overflow-hidden rounded-2xl border border-border bg-card">
-        <div className="relative aspect-[3/1] w-full">
+        <div
+          // oxlint-disable-next-line shadcn/no-arbitrary-values -- near.social banners are 1500x500 (3:1); no Tailwind aspect scale token matches
+          className="relative aspect-[3/1] w-full"
+        >
           <div className="absolute inset-0 bg-brand-accent-light" />
           {backgroundUrl && (
             <img
