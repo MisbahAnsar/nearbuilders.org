@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Activity, AlertTriangle, ExternalLink, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useApiClient } from "@/app";
+import { type ApiClient, useApiClient } from "@/app";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,12 +18,10 @@ import { Label } from "@/components/ui/label";
 const EVENT_TYPE_NAME_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
 const MAX_EVENT_POINTS = 100;
 
-interface ActivityProject {
-  id: string;
-  kind: string;
-  status: string;
-  visibility: string;
-}
+type ActivityProject = Pick<
+  Awaited<ReturnType<ApiClient["getProject"]>>["data"],
+  "id" | "kind" | "status" | "visibility"
+>;
 
 interface EventRow {
   key: number;
@@ -104,7 +102,7 @@ export function ProjectActivityAction({
     if (data.sourceId) url.searchParams.set("source", data.sourceId);
     return (
       <Button asChild size="sm" variant="outline">
-        <a href={url.toString()} target="_blank" rel="noreferrer">
+        <a href={url.toString()} target="_blank" rel="noreferrer" aria-label="View activity">
           <Activity size={13} />
           <span className="hidden sm:inline">View activity</span>
         </a>
@@ -116,7 +114,13 @@ export function ProjectActivityAction({
 
   return (
     <>
-      <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        aria-label="Register Activity"
+        onClick={() => setOpen(true)}
+      >
         <Activity size={13} />
         <span className="hidden sm:inline">Register Activity</span>
       </Button>

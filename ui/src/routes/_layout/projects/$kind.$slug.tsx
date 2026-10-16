@@ -26,6 +26,7 @@ import {
   ProjectActivityBadge,
   ProjectActivityRejected,
 } from "@/components/project-activity";
+import { ProjectActivityFeed } from "@/components/project-activity-feed";
 import { ProjectReviewStatus } from "@/components/project-review-status";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/ui/markdown";
@@ -557,6 +558,8 @@ function ProjectDetailPage() {
                   )}
                 </div>
               </section>
+
+              <ProjectActivityFeed projectId={project.id} />
 
               <NostrFeed target={project.slug} targetType={project.kind} requireBound />
 

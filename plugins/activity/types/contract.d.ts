@@ -69,6 +69,14 @@ export declare const ActivityGatewayModeSchema: z.ZodEnum<{
     "dual-write": "dual-write";
     "standalone-only": "standalone-only";
 }>;
+export declare const ActivityRedatePlanSchema: z.ZodObject<{
+    dryRun: z.ZodBoolean;
+    misdated: z.ZodNumber;
+    hidden: z.ZodNumber;
+    enqueued: z.ZodNumber;
+    oldestOccurredAt: z.ZodNullable<z.ZodString>;
+    newestOccurredAt: z.ZodNullable<z.ZodString>;
+}, z.core.$strip>;
 export declare const ActivityGatewayStatusSchema: z.ZodObject<{
     mode: z.ZodEnum<{
         "legacy-only": "legacy-only";
@@ -139,6 +147,22 @@ export declare const ActivityProjectStatusSchema: z.ZodObject<{
     reviewReason: z.ZodNullable<z.ZodString>;
     activityUrl: z.ZodString;
 }, z.core.$strip>;
+export declare const ActivityProjectEventsSchema: z.ZodObject<{
+    events: z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        type: z.ZodString;
+        actor: z.ZodString;
+        occurredAt: z.ZodString;
+        underReview: z.ZodBoolean;
+    }, z.core.$strip>>;
+    nextCursor: z.ZodNullable<z.ZodString>;
+}, z.core.$strip>;
+export declare const ActivityProjectContributorsSchema: z.ZodArray<z.ZodObject<{
+    rank: z.ZodNumber;
+    actor: z.ZodString;
+    score: z.ZodNumber;
+    eventCount: z.ZodNumber;
+}, z.core.$strip>>;
 export declare const contract: {
     emitActivity: import("@orpc/contract").ContractProcedure<z.ZodObject<{
         source: z.ZodString;
@@ -427,6 +451,36 @@ export declare const contract: {
             }, z.core.$strip>;
         };
     }>>, Record<never, never>>;
+    redateActivityHistory: import("@orpc/contract").ContractProcedure<z.ZodObject<{
+        dryRun: z.ZodDefault<z.ZodBoolean>;
+    }, z.core.$strip>, z.ZodObject<{
+        dryRun: z.ZodBoolean;
+        misdated: z.ZodNumber;
+        hidden: z.ZodNumber;
+        enqueued: z.ZodNumber;
+        oldestOccurredAt: z.ZodNullable<z.ZodString>;
+        newestOccurredAt: z.ZodNullable<z.ZodString>;
+    }, z.core.$strip>, import("@orpc/contract").MergedErrorMap<Record<never, never>, import("@orpc/contract").MergedErrorMap<Record<never, never>, {
+        UNAUTHORIZED: {
+            readonly status: 401;
+            readonly data: z.ZodObject<{
+                apiKeyProvided: z.ZodBoolean;
+                provider: z.ZodOptional<z.ZodString>;
+                authType: z.ZodOptional<z.ZodEnum<{
+                    apiKey: "apiKey";
+                    oauth: "oauth";
+                    token: "token";
+                }>>;
+            }, z.core.$strip>;
+        };
+        FORBIDDEN: {
+            readonly status: 403;
+            readonly data: z.ZodObject<{
+                requiredPermissions: z.ZodOptional<z.ZodArray<z.ZodString>>;
+                action: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+        };
+    }>>, Record<never, never>>;
     startActivityRegistration: import("@orpc/contract").ContractProcedure<z.ZodObject<{
         projectId: z.ZodString;
         nearAccountId: z.ZodOptional<z.ZodString>;
@@ -473,6 +527,45 @@ export declare const contract: {
         reviewReason: z.ZodNullable<z.ZodString>;
         activityUrl: z.ZodString;
     }, z.core.$strip>, import("@orpc/contract").MergedErrorMap<Record<never, never>, import("@orpc/contract").MergedErrorMap<Record<never, never>, {
+        SERVICE_UNAVAILABLE: {
+            readonly status: 503;
+            readonly data: z.ZodObject<{
+                retryAfter: z.ZodOptional<z.ZodNumber>;
+                maintenanceWindow: z.ZodDefault<z.ZodBoolean>;
+                estimatedUptime: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+        };
+    }>>, Record<never, never>>;
+    getProjectActivityEvents: import("@orpc/contract").ContractProcedure<z.ZodObject<{
+        projectId: z.ZodString;
+        cursor: z.ZodOptional<z.ZodString>;
+    }, z.core.$strip>, z.ZodObject<{
+        events: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            type: z.ZodString;
+            actor: z.ZodString;
+            occurredAt: z.ZodString;
+            underReview: z.ZodBoolean;
+        }, z.core.$strip>>;
+        nextCursor: z.ZodNullable<z.ZodString>;
+    }, z.core.$strip>, import("@orpc/contract").MergedErrorMap<Record<never, never>, import("@orpc/contract").MergedErrorMap<Record<never, never>, {
+        SERVICE_UNAVAILABLE: {
+            readonly status: 503;
+            readonly data: z.ZodObject<{
+                retryAfter: z.ZodOptional<z.ZodNumber>;
+                maintenanceWindow: z.ZodDefault<z.ZodBoolean>;
+                estimatedUptime: z.ZodOptional<z.ZodString>;
+            }, z.core.$strip>;
+        };
+    }>>, Record<never, never>>;
+    getProjectActivityContributors: import("@orpc/contract").ContractProcedure<z.ZodObject<{
+        projectId: z.ZodString;
+    }, z.core.$strip>, z.ZodArray<z.ZodObject<{
+        rank: z.ZodNumber;
+        actor: z.ZodString;
+        score: z.ZodNumber;
+        eventCount: z.ZodNumber;
+    }, z.core.$strip>>, import("@orpc/contract").MergedErrorMap<Record<never, never>, import("@orpc/contract").MergedErrorMap<Record<never, never>, {
         SERVICE_UNAVAILABLE: {
             readonly status: 503;
             readonly data: z.ZodObject<{

@@ -58,6 +58,15 @@ export const ActivityLeaderboardInputSchema = z.object({
 
 export const ActivityGatewayModeSchema = z.enum(["legacy-only", "dual-write", "standalone-only"]);
 
+export const ActivityRedatePlanSchema = z.object({
+  dryRun: z.boolean(),
+  misdated: z.number().int().nonnegative(),
+  hidden: z.number().int().nonnegative(),
+  enqueued: z.number().int().nonnegative(),
+  oldestOccurredAt: z.string().nullable(),
+  newestOccurredAt: z.string().nullable(),
+});
+
 export const ActivityGatewayStatusSchema = z.object({
   mode: ActivityGatewayModeSchema,
   configured: z.boolean(),
@@ -136,6 +145,28 @@ export const ActivityProjectStatusSchema = z.object({
   activityUrl: z.string(),
 });
 
+export const ActivityProjectEventsSchema = z.object({
+  events: z.array(
+    z.object({
+      id: z.string(),
+      type: z.string(),
+      actor: z.string(),
+      occurredAt: z.string(),
+      underReview: z.boolean(),
+    }),
+  ),
+  nextCursor: z.string().nullable(),
+});
+
+export const ActivityProjectContributorsSchema = z.array(
+  z.object({
+    rank: z.number().int().positive(),
+    actor: z.string(),
+    score: z.number().nonnegative(),
+    eventCount: z.number().int().nonnegative(),
+  }),
+);
+
 export const contract = oc.router({
   emitActivity: oc
     .route({ method: "POST", path: "/v1/activity" })
@@ -186,6 +217,12 @@ export const contract = oc.router({
     .output(ActivityGatewayStatusSchema)
     .errors({ UNAUTHORIZED, FORBIDDEN }),
 
+  redateActivityHistory: oc
+    .route({ method: "POST", path: "/v1/internal/activity/gateway/redate" })
+    .input(z.object({ dryRun: z.boolean().default(true) }))
+    .output(ActivityRedatePlanSchema)
+    .errors({ UNAUTHORIZED, FORBIDDEN }),
+
   startActivityRegistration: oc
     .route({ method: "POST", path: "/v1/internal/activity/registrations" })
     .input(ActivityRegistrationInputSchema)
@@ -196,6 +233,23 @@ export const contract = oc.router({
     .route({ method: "GET", path: "/v1/activity/projects/{projectId}" })
     .input(z.object({ projectId: z.string().min(1).max(200) }))
     .output(ActivityProjectStatusSchema)
+    .errors({ SERVICE_UNAVAILABLE }),
+
+  getProjectActivityEvents: oc
+    .route({ method: "GET", path: "/v1/activity/projects/{projectId}/events" })
+    .input(
+      z.object({
+        projectId: z.string().min(1).max(200),
+        cursor: z.string().max(500).optional(),
+      }),
+    )
+    .output(ActivityProjectEventsSchema)
+    .errors({ SERVICE_UNAVAILABLE }),
+
+  getProjectActivityContributors: oc
+    .route({ method: "GET", path: "/v1/activity/projects/{projectId}/contributors" })
+    .input(z.object({ projectId: z.string().min(1).max(200) }))
+    .output(ActivityProjectContributorsSchema)
     .errors({ SERVICE_UNAVAILABLE }),
 
   importActivityHistory: oc
