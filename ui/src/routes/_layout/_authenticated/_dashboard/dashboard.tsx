@@ -1,6 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import type { Profile } from "better-near-auth";
 import {
   AlertCircle,
   ArrowRight,
@@ -22,6 +21,7 @@ import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { type SessionData, sessionQueryOptions, useApiClient, useAuthClient } from "@/app";
 import { BuilderOnboardingChecklist } from "@/components/builder-onboarding-checklist";
+import { LegacySocialImportPrompt } from "@/components/legacy-social-import-prompt";
 import { NearProfile } from "@/components/near-profile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useNearAccount } from "@/hooks";
+import type { ResolvedNearProfile } from "@/lib/near-social";
 import { nearProfileOptions } from "@/lib/queries/builders";
 
 export const Route = createFileRoute("/_layout/_authenticated/_dashboard/dashboard")({
@@ -100,7 +101,7 @@ function Dashboard() {
     enabled: Boolean(user && !user.isAnonymous),
   });
 
-  const { data: nearProfile, isLoading: nearProfileLoading } = useQuery<Profile | null>(
+  const { data: nearProfile, isLoading: nearProfileLoading } = useQuery(
     nearProfileOptions(auth, nearAccountId ?? ""),
   );
 
@@ -217,6 +218,8 @@ function Dashboard() {
         pendingInvites={pendingInvites}
         acceptedCollaborations={acceptedCollaborations}
       />
+
+      <LegacySocialImportPrompt profile={nearProfile} />
 
       {/* oxlint-disable-next-line shadcn/no-arbitrary-values -- main-content/sidebar grid split with a fixed sidebar width; grid-template-columns has no scale equivalent */}
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-stretch">
@@ -850,7 +853,7 @@ function DashboardHeader({
   showPublicProfile = false,
 }: {
   nearAccountId?: string | null;
-  nearProfile?: Profile | null;
+  nearProfile?: ResolvedNearProfile | null;
   showPublicProfile?: boolean;
 }) {
   const displayName = nearProfile?.name?.trim() || nearAccountId?.split(".")[0] || "builder";

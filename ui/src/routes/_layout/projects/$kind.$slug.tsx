@@ -35,6 +35,8 @@ import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/comp
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { VoteButton } from "@/components/ui/vote-button";
 import { isSafeImageUrl } from "@/lib/image-url";
+import { getNearSocialAvatarUrl, resolveProjectNearAccount } from "@/lib/near-social";
+import { nearProfileOptions } from "@/lib/queries/builders";
 import { formatRelativeTime } from "@/lib/queries/notifications";
 import {
   fetchRepositoryLastCommitDate,
@@ -148,6 +150,12 @@ function ProjectDetailPage() {
 
   const project = projectQuery.data?.data;
   const projectId = project?.id;
+  const projectSocialAccount =
+    resolveProjectNearAccount({
+      ownerId: project?.ownerId,
+      apps: (project as { apps?: Array<{ accountId: string }> } | undefined)?.apps,
+    }) ?? "";
+  const { data: projectSocialProfile } = useQuery(nearProfileOptions(auth, projectSocialAccount));
   const canParticipate = Boolean(session?.user && !session.user.isAnonymous);
 
   const readmeQuery = useQuery({
@@ -296,6 +304,9 @@ function ProjectDetailPage() {
       ? project.content
       : (readmeQuery.data ?? project.description ?? null);
   const readmeUnavailable = project.kind === "project" && readmeQuery.isError && !readmeQuery.data;
+  const projectImageUrl = isSafeImageUrl(project.logoUrl)
+    ? project.logoUrl
+    : getNearSocialAvatarUrl(projectSocialProfile);
 
   const metaItems = (
     <div className="space-y-4">
@@ -454,9 +465,9 @@ function ProjectDetailPage() {
                   <NewBadge createdAt={project.createdAt} />
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  {isSafeImageUrl(project.logoUrl) && (
+                  {projectImageUrl && (
                     <img
-                      src={project.logoUrl}
+                      src={projectImageUrl}
                       alt=""
                       className="size-12 shrink-0 rounded-md border border-border object-cover"
                     />
